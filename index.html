@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Calculadora</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main class="calc" role="application" aria-label="Calculadora">
+    <section class="display">
+      <div id="history" class="history" aria-live="polite"></div>
+      <div id="result" class="result" aria-live="polite">0</div>
+    </section>
+
+    <section class="keys" aria-label="Teclado da calculadora">
+      <button class="btn-danger" data-action="clear" aria-label="Limpar tudo (Esc)">AC</button>
+      <button class="btn-accent" data-action="delete" aria-label="Apagar (Backspace)">DEL</button>
+      <button class="btn-accent" data-action="percent" aria-label="Porcentagem">%</button>
+      <button class="btn-operator" data-value="/" aria-label="Dividir">÷</button>
+
+      <button data-value="7">7</button>
+      <button data-value="8">8</button>
+      <button data-value="9">9</button>
+      <button class="btn-operator" data-value="*" aria-label="Multiplicar">×</button>
+
+      <button data-value="4">4</button>
+      <button data-value="5">5</button>
+      <button data-value="6">6</button>
+      <button class="btn-operator" data-value="-" aria-label="Subtrair">−</button>
+
+      <button data-value="1">1</button>
+      <button data-value="2">2</button>
+      <button data-value="3">3</button>
+      <button class="btn-operator" data-value="+" aria-label="Somar">+</button>
+
+      <button data-action="sign" aria-label="Trocar sinal">±</button>
+      <button data-value="0">0</button>
+      <button data-value=".">.</button>
+      <button class="btn-equals" data-action="equals" aria-label="Igual (Enter)">=</button>
+    </section>
+  </main>
+
+  <footer>
+    Atalhos: <span class="kbd">Esc</span> limpa • <span class="kbd">Backspace</span> apaga • <span class="kbd">Enter</span> igual • Use o teclado numérico e operadores.
+  </footer>
+
+  <script src="js/script.js"></script>
+</body>
+</html>
