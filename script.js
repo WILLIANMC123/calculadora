@@ -1,217 +1,130 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const display = document.getElementById('display');
-    const keys = document.querySelector('.grid');
+// Obtém o elemento de exibição da calculadora
+const display = document.getElementById('display');
+// Obtém todos os botões da calculadora
+const buttons = document.querySelectorAll('.calculator-button');
 
-    // Objeto para armazenar o estado da calculadora
-    const calculatorState = {
-        displayValue: '0',
-        firstOperand: null,
-        waitingForSecondOperand: false,
-        operator: null,
-    };
+// Variáveis para armazenar o valor atual, o valor anterior e o operador
+let currentExpression = ''; // Expressão que está sendo construída
+let history = ''; // Histórico da expressão para depuração, se necessário
+let lastResult = null; // Armazena o último resultado para encadeamento de operações
 
-    /**
-     * Atualiza o valor exibido na tela da calculadora.
-     */
-    function updateDisplay() {
-        display.textContent = calculatorState.displayValue;
-    }
+// Adiciona um listener de evento de clique a cada botão
+buttons.forEach(button => {
+    button.addEventListener('click', () => {
+        const value = button.dataset.value; // Obtém o valor do atributo 'data-value' do botão
 
-    // Inicializa a tela
-    updateDisplay();
+        // Lida com diferentes tipos de botões
+        switch (value) {
+            case 'clear':
+                // Limpa a tela e reseta as variáveis
+                currentExpression = '';
+                display.value = '0';
+                lastResult = null;
+                break;
+            case 'delete':
+                // Remove o último caractere da expressão
+                currentExpression = currentExpression.slice(0, -1);
+                display.value = currentExpression || '0'; // Exibe '0' se a expressão estiver vazia
+                break;
+            case '=':
+                // Tenta calcular o resultado da expressão
+                try {
+                    // Substitui 'log' por 'Math.log10' e 'ln' por 'Math.log'
+                    // Substitui 'pow' por '**'
+                    // Substitui 'sqrt' por 'Math.sqrt()'
+                    // Substitui 'sin', 'cos', 'tan' por 'Math.sin()', 'Math.cos()', 'Math.tan()' (convertendo para radianos)
+                    let expressionToEvaluate = currentExpression
+                        .replace(/π/g, 'Math.PI')
+                        .replace(/e/g, 'Math.E')
+                        .replace(/log\(([^)]+)\)/g, 'Math.log10($1)')
+                        .replace(/ln\(([^)]+)\)/g, 'Math.log($1)')
+                        .replace(/sqrt\(([^)]+)\)/g, 'Math.sqrt($1)')
+                        .replace(/pow\(([^,]+),([^)]+)\)/g, 'Math.pow($1,$2)') // lidar com x^y como pow(x,y)
+                        .replace(/sin\(([^)]+)\)/g, 'Math.sin($1 * Math.PI / 180)') // Assume graus para input
+                        .replace(/cos\(([^)]+)\)/g, 'Math.cos($1 * Math.PI / 180)') // Assume graus para input
+                        .replace(/tan\(([^)]+)\)/g, 'Math.tan($1 * Math.PI / 180)') // Assume graus para input
+                        .replace(/%/g, '/100'); // Trata % como divisão por 100
 
-    /**
-     * Lida com a entrada de dígitos.
-     * @param {string} digit - O dígito a ser inserido.
-     */
-    function inputDigit(digit) {
-        const { displayValue, waitingForSecondOperand } = calculatorState;
+                    // Lida com o fatorial (x!)
+                    if (expressionToEvaluate.includes('!')) {
+                        const parts = expressionToEvaluate.split('!');
+                        if (parts.length > 1) {
+                            const num = parseFloat(parts[0]);
+                            if (!isNaN(num) && Number.isInteger(num) && num >= 0) {
+                                expressionToEvaluate = factorial(num).toString();
+                            } else {
+                                throw new Error('Entrada inválida para fatorial.');
+                            }
+                        }
+                    }
 
-        // Se um erro for exibido, resete antes de inserir o novo dígito.
-        if (displayValue === 'Erro') {
-            resetCalculator();
-            calculatorState.displayValue = digit;
-            return;
-        }
-
-        if (waitingForSecondOperand) {
-            calculatorState.displayValue = digit;
-            calculatorState.waitingForSecondOperand = false;
-        } else {
-            calculatorState.displayValue = displayValue === '0' ? digit : displayValue + digit;
-        }
-    }
-
-    /**
-     * Insere o ponto decimal.
-     */
-    function inputDecimal() {
-        if (calculatorState.waitingForSecondOperand) {
-            calculatorState.displayValue = '0.';
-            calculatorState.waitingForSecondOperand = false;
-            return;
-        }
-        if (!calculatorState.displayValue.includes('.')) {
-            calculatorState.displayValue += '.';
-        }
-    }
-
-    /**
-     * Lida com a seleção de um operador.
-     * @param {string} nextOperator - O operador selecionado.
-     */
-    function handleOperator(nextOperator) {
-        const { firstOperand, displayValue, operator } = calculatorState;
-        const inputValue = parseFloat(displayValue);
-
-        if (operator && calculatorState.waitingForSecondOperand) {
-            calculatorState.operator = nextOperator;
-            return;
-        }
-
-        if (firstOperand === null && !isNaN(inputValue)) {
-            calculatorState.firstOperand = inputValue;
-        } else if (operator) {
-            const result = calculate(firstOperand, inputValue, operator);
-            
-            if (result === 'Erro') {
-                calculatorState.displayValue = 'Erro';
-            } else {
-                calculatorState.displayValue = `${parseFloat(result.toFixed(7))}`;
-                calculatorState.firstOperand = result;
-            }
-        }
-
-        calculatorState.waitingForSecondOperand = true;
-        calculatorState.operator = nextOperator;
-    }
-
-    /**
-     * Realiza o cálculo.
-     * @param {number} firstOperand - O primeiro número.
-     * @param {number} secondOperand - O segundo número.
-     * @param {string} operator - O operador.
-     * @returns {number|string} O resultado do cálculo ou 'Erro'.
-     */
-    function calculate(firstOperand, secondOperand, operator) {
-        switch (operator) {
-            case 'add':
-                return firstOperand + secondOperand;
-            case 'subtract':
-                return firstOperand - secondOperand;
-            case 'multiply':
-                return firstOperand * secondOperand;
-            case 'divide':
-                if (secondOperand === 0) return 'Erro';
-                return firstOperand / secondOperand;
+                    // Avalia a expressão. Usar eval() é perigoso, mas para uma calculadora simples é comum.
+                    // Em um ambiente de produção, seria necessário um parser de expressões seguro.
+                    lastResult = eval(expressionToEvaluate);
+                    display.value = lastResult;
+                    currentExpression = lastResult.toString(); // Define a expressão atual para o resultado para encadeamento
+                } catch (error) {
+                    display.value = 'Erro'; // Exibe 'Erro' em caso de falha no cálculo
+                    currentExpression = ''; // Limpa a expressão após um erro
+                    lastResult = null;
+                    console.error('Erro de cálculo:', error);
+                }
+                break;
+            case 'sin':
+            case 'cos':
+            case 'tan':
+            case 'log':
+            case 'ln':
+            case 'sqrt':
+                // Adiciona a função com um parêntese de abertura para o usuário preencher
+                currentExpression += value + '(';
+                display.value = currentExpression;
+                break;
+            case 'pow':
+                // Adiciona a função de potência com parênteses e vírgula
+                currentExpression += '^'; // Exibir '^' na tela, mas internamente será 'Math.pow'
+                display.value = currentExpression;
+                break;
+            case 'pi':
+                // Adiciona o valor de PI
+                currentExpression += 'π';
+                display.value = currentExpression;
+                break;
+            case 'e':
+                // Adiciona o valor de Euler (e)
+                currentExpression += 'e';
+                display.value = currentExpression;
+                break;
+            case '!':
+                // Adiciona o símbolo de fatorial
+                currentExpression += '!';
+                display.value = currentExpression;
+                break;
             default:
-                return secondOperand;
-        }
-    }
-    
-    /**
-     * Inverte o sinal do número no display.
-     */
-    function negateValue() {
-        if (calculatorState.displayValue !== '0' && calculatorState.displayValue !== 'Erro') {
-            calculatorState.displayValue = (parseFloat(calculatorState.displayValue) * -1).toString();
-        }
-    }
-
-    /**
-     * Converte o número no display para porcentagem.
-     */
-    function convertToPercentage() {
-        if (calculatorState.displayValue !== 'Erro') {
-            calculatorState.displayValue = (parseFloat(calculatorState.displayValue) / 100).toString();
-        }
-    }
-    
-    /**
-     * Apaga o último dígito inserido.
-     */
-    function backspace() {
-        if (calculatorState.displayValue === 'Erro') return;
-        if (calculatorState.displayValue.length > 1) {
-            calculatorState.displayValue = calculatorState.displayValue.slice(0, -1);
-        } else {
-            calculatorState.displayValue = '0';
-        }
-    }
-
-    /**
-     * Reseta a calculadora para o estado inicial.
-     */
-    function resetCalculator() {
-        calculatorState.displayValue = '0';
-        calculatorState.firstOperand = null;
-        calculatorState.waitingForSecondOperand = false;
-        calculatorState.operator = null;
-    }
-
-    // Mapeia ações a funções
-    const actions = {
-        'decimal': inputDecimal,
-        'clear': resetCalculator,
-        'negate': negateValue,
-        'percentage': convertToPercentage,
-        'backspace': backspace,
-        'calculate': () => {
-            const { firstOperand, displayValue, operator } = calculatorState;
-            if (firstOperand == null || operator == null || calculatorState.waitingForSecondOperand) return;
-            const result = calculate(firstOperand, parseFloat(displayValue), operator);
-            if (result === 'Erro') {
-                calculatorState.displayValue = 'Erro';
-            } else {
-                calculatorState.displayValue = `${parseFloat(result.toFixed(7))}`;
-            }
-            calculatorState.operator = null;
-            calculatorState.firstOperand = null; // Reset for new calculations
-            calculatorState.waitingForSecondOperand = true;
-        }
-    };
-
-    // Lida com cliques nos botões
-    keys.addEventListener('click', (event) => {
-        const { target } = event;
-        if (!target.matches('button')) return;
-
-        const { action } = target.dataset;
-        const keyContent = target.textContent;
-        
-        if (!action) { // É um número
-            inputDigit(keyContent);
-        } else if (['add', 'subtract', 'multiply', 'divide'].includes(action)) {
-            handleOperator(action);
-        } else if (actions[action]) { // Outras ações
-            actions[action]();
-        }
-
-        updateDisplay();
-    });
-    
-    // Lida com entradas do teclado
-    window.addEventListener('keydown', (event) => {
-        const keyMap = {
-            '0': '0', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6', '7': '7', '8': '8', '9': '9',
-            '.': 'decimal', ',': 'decimal',
-            '+': 'add', '-': 'subtract', '*': 'multiply', '/': 'divide',
-            '%': 'percentage',
-            'Enter': 'calculate', '=': 'calculate',
-            'Escape': 'clear', 'c': 'clear', 'C': 'clear',
-            'Backspace': 'backspace'
-        };
-        
-        const action = keyMap[event.key];
-        if (action) {
-            event.preventDefault(); // Impede ações padrão do navegador
-            const button = document.querySelector(`[data-action="${action}"]`) || Array.from(document.querySelectorAll('.btn')).find(btn => btn.textContent === event.key);
-            if (button) {
-                button.click();
-                // Adiciona um efeito visual para o pressionamento da tecla
-                button.classList.add('is-depressed');
-                setTimeout(() => button.classList.remove('is-depressed'), 150);
-            }
+                // Adiciona números e operadores normais
+                if (display.value === '0' && value !== '.') {
+                    display.value = value;
+                } else {
+                    display.value += value;
+                }
+                currentExpression += value; // Adiciona o valor à expressão atual
+                break;
         }
     });
 });
+
+// Função para calcular o fatorial de um número
+function factorial(n) {
+    if (n === 0 || n === 1) {
+        return 1;
+    }
+    if (n < 0) {
+        throw new Error('Fatorial não definido para números negativos.');
+    }
+    let result = 1;
+    for (let i = 2; i <= n; i++) {
+        result *= i;
+    }
+    return result;
+}
+
