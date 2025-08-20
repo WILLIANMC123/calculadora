@@ -1,130 +1,41 @@
-:root {
-  --bg: #0e0f13;
-  --panel: #161821;
-  --accent: #6ee7ff;
-  --accent-2: #b388ff;
-  --text: #e9eef5;
-  --muted: #9aa3b2;
-  --danger: #ff6b6b;
-  --ok: #7be495;
-  --shadow: 0 20px 40px rgba(0,0,0,.45);
-  --radius: 18px;
+/* Este CSS é opcional, pois o Tailwind CSS é carregado via CDN no HTML. */
+/* Você pode adicionar estilos personalizados aqui se desejar. */
+
+/* Estilo base para os botões */
+.btn {
+    @apply text-2xl font-semibold text-gray-800 bg-gray-200 rounded-lg h-20 flex items-center justify-center transition-all duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-opacity-50;
 }
 
-* { box-sizing: border-box; }
-html, body { height: 100%; }
+/* Estilo para botões de número e decimal */
+.number-btn, [data-action="decimal"] {
+    @apply bg-gray-200 hover:bg-gray-300 focus:ring-gray-400;
+}
 
+/* Estilo para botões de operadores */
+.operator-btn {
+    @apply text-white focus:ring-white;
+}
+
+/* Estilo para o botão de igual */
+.equals-btn {
+    @apply text-white focus:ring-white;
+}
+
+/* Estilo da tela de exibição */
+#display {
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    min-height: 80px; /* Garante uma altura mínima */
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+/* Estilo geral da calculadora */
+.calculator {
+    border: 1px solid #e5e7eb; /* Borda sutil */
+}
+
+/* Adicionando a fonte Inter do Google Fonts */
 body {
-  margin: 0;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica Neue, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-  background: radial-gradient(1200px 800px at 20% 10%, #192033 0%, #0b0d12 50%, #07080c 100%), var(--bg);
-  color: var(--text);
-  display: grid;
-  place-items: center;
-  padding: 24px;
-}
-
-.calc {
-  width: min(420px, 92vw);
-  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  overflow: hidden;
-}
-
-.display {
-  min-height: 120px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(0,0,0,0.12));
-  padding: 18px 16px;
-  display: grid;
-  gap: 8px;
-}
-
-.history {
-  height: 22px;
-  font-size: 14px;
-  color: var(--muted);
-  text-align: right;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.result {
-  font-variant-numeric: tabular-nums;
-  font-size: clamp(28px, 6vw, 42px);
-  text-align: right;
-  line-height: 1.2;
-  white-space: nowrap;
-  overflow-x: auto;
-  scrollbar-width: thin;
-}
-
-.keys {
-  padding: 12px;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.18));
-}
-
-button {
-  position: relative;
-  appearance: none;
-  border: 0;
-  border-radius: 14px;
-  padding: 16px 14px;
-  font-size: 18px;
-  color: var(--text);
-  background: linear-gradient(180deg, #1b2031, #11141d);
-  border: 1px solid rgba(255,255,255,0.06);
-  box-shadow: 0 6px 16px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,0.03);
-  cursor: pointer;
-  transition: transform .06s ease, filter .2s ease, background .2s ease;
-}
-
-button:hover { filter: brightness(1.06); }
-button:active { transform: translateY(1px) scale(.99); }
-button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-
-.btn-operator {
-  background: linear-gradient(180deg, #263148, #161c2b);
-  border-color: rgba(110,231,255,.35);
-}
-
-.btn-equals {
-  background: linear-gradient(180deg, #4e91ff, #6d39ff);
-  border-color: rgba(179,136,255,.6);
-}
-
-.btn-danger {
-  background: linear-gradient(180deg, #3a1f26, #2a1318);
-  border-color: rgba(255,107,107,.5);
-}
-
-.btn-accent {
-  background: linear-gradient(180deg, #1f2c3e, #141c2a);
-  border-color: rgba(110,231,255,.35);
-}
-
-.span-2 { grid-column: span 2; }
-
-footer {
-  margin-top: 12px;
-  text-align: center;
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.kbd {
-  display: inline-block;
-  border: 1px solid rgba(255,255,255,.18);
-  border-radius: 6px;
-  padding: 1px 6px;
-  font-size: 11px;
-  color: var(--text);
-  background: rgba(255,255,255,.05);
+    font-family: 'Inter', sans-serif;
 }
