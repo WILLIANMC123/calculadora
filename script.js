@@ -1,112 +1,184 @@
-const resultEl = document.getElementById('result');
-const historyEl = document.getElementById('history');
+document.addEventListener('DOMContentLoaded', () => {
+    // Seleciona o container da calculadora e a tela de exibição
+    const calculator = document.querySelector('.calculator');
+    const display = document.getElementById('display');
+    const keys = calculator.querySelector('.grid');
 
-const isOperator = (ch) => /[+\-*/]/.test(ch);
+    // Objeto para armazenar o estado da calculadora
+    const calculatorState = {
+        displayValue: '0',
+        firstOperand: null,
+        waitingForSecondOperand: false,
+        operator: null,
+    };
 
-function insertValue(v) {
-  let txt = resultEl.textContent;
-  if (txt === '0' && /[0-9.]/.test(v)) {
-    txt = '';
-  }
-  const last = txt.slice(-1);
-  if (isOperator(last) && isOperator(v)) {
-    txt = txt.slice(0, -1); // substitui operador
-  }
-  if (v === '.') {
-    const lastNum = txt.split(/[-+*/]/).pop();
-    if (lastNum.includes('.')) return;
-  }
-  resultEl.textContent = txt + v;
-}
+    /**
+     * Atualiza o valor exibido na tela da calculadora.
+     */
+    function updateDisplay() {
+        display.textContent = calculatorState.displayValue;
+    }
 
-function clearAll() {
-  resultEl.textContent = '0';
-  historyEl.textContent = '';
-}
+    // Inicializa a tela
+    updateDisplay();
 
-function deleteOne() {
-  let txt = resultEl.textContent;
-  if (txt.length <= 1) {
-    resultEl.textContent = '0';
-  } else {
-    resultEl.textContent = txt.slice(0, -1);
-  }
-}
+    /**
+     * Lida com o clique nos botões.
+     * @param {Event} event - O evento de clique.
+     */
+    keys.addEventListener('click', (event) => {
+        const { target } = event;
+        const { textContent } = target;
+        const { action } = target.dataset;
 
-function applyPercent() {
-  let txt = resultEl.textContent;
-  const parts = txt.split(/([+\-*/])/);
-  const lastPart = parts[parts.length - 1];
-  if (!lastPart || /[+\-*/]/.test(lastPart)) return;
-  const num = parseFloat(lastPart);
-  if (isNaN(num)) return;
-  parts[parts.length - 1] = String(num / 100);
-  resultEl.textContent = parts.join('');
-}
+        // Ignora cliques que não são em botões
+        if (!target.matches('button')) {
+            return;
+        }
 
-function toggleSign() {
-  let txt = resultEl.textContent;
-  const parts = txt.split(/([+\-*/])/);
-  let i = parts.length - 1;
-  while (i >= 0 && parts[i] === '') i--;
-  if (i < 0) return;
-  if (/^[+\-*/]$/.test(parts[i])) return;
-  const val = parseFloat(parts[i]);
-  if (isNaN(val)) return;
-  parts[i] = (val * -1).toString();
-  resultEl.textContent = parts.join('');
-}
+        // Lida com números
+        if (!action) {
+            inputDigit(textContent);
+            updateDisplay();
+            return;
+        }
 
-function safeEvaluate(expr) {
-  const sanitized = expr.replace(/×/g, '*').replace(/÷/g, '/');
-  if (!/^[0-9+\-*/().\s]+$/.test(sanitized)) throw new Error('Expressão inválida');
-  if (/[+\-*/.]$/.test(sanitized)) throw new Error('Incompleta');
-  if (/([+\-*/])\1+/.test(sanitized)) throw new Error('Operadores duplicados');
-  const fn = new Function(`return (${sanitized})`);
-  const out = fn();
-  if (typeof out !== 'number' || !isFinite(out)) throw new Error('Erro de cálculo');
-  return out;
-}
+        // Lida com o ponto decimal
+        if (action === 'decimal') {
+            inputDecimal(textContent);
+            updateDisplay();
+            return;
+        }
 
-function equals() {
-  const expr = resultEl.textContent;
-  try {
-    const val = safeEvaluate(expr);
-    historyEl.textContent = expr + ' =';
-    resultEl.textContent = String(val);
-  } catch (e) {
-    historyEl.textContent = 'Erro: ' + e.message;
-    resultEl.textContent = '0';
-  }
-}
+        // Lida com operadores (+, -, *, /)
+        if (
+            action === 'add' ||
+            action === 'subtract' ||
+            action === 'multiply' ||
+            action === 'divide'
+        ) {
+            handleOperator(textContent);
+            updateDisplay();
+            return;
+        }
+        
+        // Lida com outras ações (limpar, calcular, etc.)
+        switch(action) {
+            case 'clear':
+                resetCalculator();
+                break;
+            case 'calculate':
+                const result = calculate(calculatorState.firstOperand, calculatorState.displayValue, calculatorState.operator);
+                calculatorState.displayValue = `${parseFloat(result.toFixed(7))}`;
+                calculatorState.operator = null;
+                break;
+            case 'negate':
+                 calculatorState.displayValue = (parseFloat(calculatorState.displayValue) * -1).toString();
+                 break;
+            case 'percentage':
+                 calculatorState.displayValue = (parseFloat(calculatorState.displayValue) / 100).toString();
+                 break;
+        }
+        updateDisplay();
+    });
 
-// clique dos botões
-document.querySelectorAll('button').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const v = btn.getAttribute('data-value');
-    const action = btn.getAttribute('data-action');
-    if (v) return insertValue(v);
-    if (action === 'clear') return clearAll();
-    if (action === 'delete') return deleteOne();
-    if (action === 'percent') return applyPercent();
-    if (action === 'sign') return toggleSign();
-    if (action === 'equals') return equals();
-  });
-});
+    /**
+     * Insere um dígito na tela.
+     * @param {string} digit - O dígito a ser inserido.
+     */
+    function inputDigit(digit) {
+        const { displayValue, waitingForSecondOperand } = calculatorState;
 
-// suporte ao teclado
-window.addEventListener('keydown', (e) => {
-  const key = e.key;
-  if ((/^[0-9]$/.test(key)) || ['+', '-', '*', '/', '.','(',')'].includes(key)) {
-    insertValue(key);
-  } else if (key === 'Enter' || key === '=') {
-    e.preventDefault();
-    equals();
-  } else if (key === 'Backspace') {
-    deleteOne();
-  } else if (key === 'Escape') {
-    clearAll();
-  } else if (key === '%') {
-    applyPercent();
-  }
+        if (waitingForSecondOperand === true) {
+            calculatorState.displayValue = digit;
+            calculatorState.waitingForSecondOperand = false;
+        } else {
+            calculatorState.displayValue =
+                displayValue === '0' ? digit : displayValue + digit;
+        }
+    }
+
+    /**
+     * Insere o ponto decimal.
+     * @param {string} dot - O caractere de ponto.
+     */
+    function inputDecimal(dot) {
+        // Se o display já inclui um ponto, não faz nada
+        if (!calculatorState.displayValue.includes(dot)) {
+            calculatorState.displayValue += dot;
+        }
+    }
+
+    /**
+     * Lida com a seleção de um operador.
+     * @param {string} nextOperator - O operador selecionado.
+     */
+    function handleOperator(nextOperatorSymbol) {
+        const { firstOperand, displayValue, operator } = calculatorState;
+        const inputValue = parseFloat(displayValue);
+        
+        // Mapeia símbolos para funções
+        const operatorMap = {
+            '+': 'add',
+            '−': 'subtract',
+            '×': 'multiply',
+            '÷': 'divide'
+        };
+        const nextOperator = operatorMap[nextOperatorSymbol] || nextOperatorSymbol;
+
+
+        if (operator && calculatorState.waitingForSecondOperand) {
+            calculatorState.operator = nextOperator;
+            return;
+        }
+
+        if (firstOperand === null && !isNaN(inputValue)) {
+            calculatorState.firstOperand = inputValue;
+        } else if (operator) {
+            const result = calculate(firstOperand, inputValue, operator);
+            calculatorState.displayValue = `${parseFloat(result.toFixed(7))}`;
+            calculatorState.firstOperand = result;
+        }
+
+        calculatorState.waitingForSecondOperand = true;
+        calculatorState.operator = nextOperator;
+    }
+
+    /**
+     * Realiza o cálculo.
+     * @param {number} firstOperand - O primeiro número.
+     * @param {number} secondOperand - O segundo número.
+     * @param {string} operator - O operador.
+     * @returns {number} O resultado do cálculo.
+     */
+    function calculate(firstOperand, secondOperand, operator) {
+        const secondNum = parseFloat(secondOperand);
+        if (operator === 'add') {
+            return firstOperand + secondNum;
+        }
+        if (operator === 'subtract') {
+            return firstOperand - secondNum;
+        }
+        if (operator === 'multiply') {
+            return firstOperand * secondNum;
+        }
+        if (operator === 'divide') {
+            // Lida com divisão por zero
+            if (secondNum === 0) {
+                return 'Erro';
+            }
+            return firstOperand / secondNum;
+        }
+        return secondNum; // Retorna o segundo operando se não houver operador
+    }
+
+    /**
+     * Reseta a calculadora para o estado inicial.
+     */
+    function resetCalculator() {
+        calculatorState.displayValue = '0';
+        calculatorState.firstOperand = null;
+        calculatorState.waitingForSecondOperand = false;
+        calculatorState.operator = null;
+    }
 });
