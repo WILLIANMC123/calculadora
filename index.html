@@ -3,54 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora Melhorada</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>Calculadora Científica</title>
+    <!-- Incluir Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Incluir o arquivo de estilo CSS separado -->
+    <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen font-sans">
+<body class="flex items-center justify-center min-h-screen bg-gray-100 p-4">
 
-    <!-- Container Principal da Calculadora -->
-    <div class="calculator bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm mx-4">
-        
-        <!-- Tela de Exibição -->
-        <div id="display" class="bg-gray-200 text-gray-800 text-5xl font-mono text-right rounded-lg p-4 mb-6 break-words overflow-x-auto">0</div>
+    <!-- Container principal da calculadora -->
+    <div class="calculator bg-white p-6 rounded-2xl shadow-xl w-full max-w-lg border border-gray-200">
+        <!-- Tela de exibição da calculadora -->
+        <input type="text" id="display" class="w-full h-24 mb-6 text-right text-5xl font-light pr-4 rounded-xl border border-gray-300 bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-inner" value="0" disabled />
 
-        <!-- Grade de Botões -->
-        <div class="grid grid-cols-4 gap-4">
-            <!-- Linha 1 -->
-            <button class="btn operator-btn bg-orange-400 hover:bg-orange-500" data-action="clear">C</button>
-            <button class="btn operator-btn bg-gray-300 hover:bg-gray-400" data-action="negate">+/-</button>
-            <button class="btn operator-btn bg-gray-300 hover:bg-gray-400" data-action="percentage">%</button>
-            <button class="btn operator-btn bg-indigo-500 hover:bg-indigo-600" data-action="divide">÷</button>
+        <!-- Teclado da calculadora -->
+        <div class="grid grid-cols-5 gap-3">
+            <!-- Botões de Funções Científicas -->
+            <button class="calculator-button bg-purple-200 text-purple-800 text-xl font-semibold p-4 rounded-xl shadow hover:bg-purple-300 transition-colors duration-200" data-value="sin">sin</button>
+            <button class="calculator-button bg-purple-200 text-purple-800 text-xl font-semibold p-4 rounded-xl shadow hover:bg-purple-300 transition-colors duration-200" data-value="cos">cos</button>
+            <button class="calculator-button bg-purple-200 text-purple-800 text-xl font-semibold p-4 rounded-xl shadow hover:bg-purple-300 transition-colors duration-200" data-value="tan">tan</button>
+            <button class="calculator-button bg-purple-200 text-purple-800 text-xl font-semibold p-4 rounded-xl shadow hover:bg-purple-300 transition-colors duration-200" data-value="log">log</button>
+            <button class="calculator-button bg-purple-200 text-purple-800 text-xl font-semibold p-4 rounded-xl shadow hover:bg-purple-300 transition-colors duration-200" data-value="ln">ln</button>
 
-            <!-- Linha 2 -->
-            <button class="btn number-btn">7</button>
-            <button class="btn number-btn">8</button>
-            <button class="btn number-btn">9</button>
-            <button class="btn operator-btn bg-indigo-500 hover:bg-indigo-600" data-action="multiply">×</button>
+            <button class="calculator-button bg-purple-200 text-purple-800 text-xl font-semibold p-4 rounded-xl shadow hover:bg-purple-300 transition-colors duration-200" data-value="sqrt">√</button>
+            <button class="calculator-button bg-purple-200 text-purple-800 text-xl font-semibold p-4 rounded-xl shadow hover:bg-purple-300 transition-colors duration-200" data-value="pow">xʸ</button>
+            <button class="calculator-button bg-purple-200 text-purple-800 text-xl font-semibold p-4 rounded-xl shadow hover:bg-purple-300 transition-colors duration-200" data-value="pi">π</button>
+            <button class="calculator-button bg-purple-200 text-purple-800 text-xl font-semibold p-4 rounded-xl shadow hover:bg-purple-300 transition-colors duration-200" data-value="e">e</button>
+            <button class="calculator-button bg-purple-200 text-purple-800 text-xl font-semibold p-4 rounded-xl shadow hover:bg-purple-300 transition-colors duration-200" data-value="!">x!</button>
 
-            <!-- Linha 3 -->
-            <button class="btn number-btn">4</button>
-            <button class="btn number-btn">5</button>
-            <button class="btn number-btn">6</button>
-            <button class="btn operator-btn bg-indigo-500 hover:bg-indigo-600" data-action="subtract">−</button>
+            <!-- Botões de Operações Especiais e Parênteses -->
+            <button class="calculator-button bg-red-500 text-white text-xl font-semibold p-4 rounded-xl shadow hover:bg-red-600 transition-colors duration-200 col-span-2" data-value="clear">C</button>
+            <button class="calculator-button bg-red-400 text-white text-xl font-semibold p-4 rounded-xl shadow hover:bg-red-500 transition-colors duration-200" data-value="delete">DEL</button>
+            <button class="calculator-button bg-gray-300 text-gray-800 text-xl font-semibold p-4 rounded-xl shadow hover:bg-gray-400 transition-colors duration-200" data-value="(">(</button>
+            <button class="calculator-button bg-gray-300 text-gray-800 text-xl font-semibold p-4 rounded-xl shadow hover:bg-gray-400 transition-colors duration-200" data-value=")">)</button>
 
-            <!-- Linha 4 -->
-            <button class="btn number-btn">1</button>
-            <button class="btn number-btn">2</button>
-            <button class="btn number-btn">3</button>
-            <button class="btn operator-btn bg-indigo-500 hover:bg-indigo-600" data-action="add">+</button>
+            <!-- Botões Numéricos e Operadores -->
+            <button class="calculator-button bg-gray-200 text-gray-800 text-xl font-semibold p-4 rounded-xl shadow hover:bg-gray-300 transition-colors duration-200" data-value="7">7</button>
+            <button class="calculator-button bg-gray-200 text-gray-800 text-xl font-semibold p-4 rounded-xl shadow hover:bg-gray-300 transition-colors duration-200" data-value="8">8</button>
+            <button class="calculator-button bg-gray-200 text-gray-800 text-xl font-semibold p-4 rounded-xl shadow hover:bg-gray-300 transition-colors duration-200" data-value="9">9</button>
+            <button class="calculator-button bg-blue-300 text-blue-800 text-xl font-semibold p-4 rounded-xl shadow hover:bg-blue-400 transition-colors duration-200" data-value="/">/</button>
+            <button class="calculator-button bg-blue-300 text-blue-800 text-xl font-semibold p-4 rounded-xl shadow hover:bg-blue-400 transition-colors duration-200" data-value="*">*</button>
 
-            <!-- Linha 5 -->
-            <button class="btn number-btn col-span-2">0</button>
-            <button class="btn" data-action="decimal">.</button>
-            <button class="btn equals-btn bg-green-500 hover:bg-green-600" data-action="calculate">=</button>
+            <button class="calculator-button bg-gray-200 text-gray-800 text-xl font-semibold p-4 rounded-xl shadow hover:bg-gray-300 transition-colors duration-200" data-value="4">4</button>
+            <button class="calculator-button bg-gray-200 text-gray-800 text-xl font-semibold p-4 rounded-xl shadow hover:bg-gray-300 transition-colors duration-200" data-value="5">5</button>
+            <button class="calculator-button bg-gray-200 text-gray-800 text-xl font-semibold p-4 rounded-xl shadow hover:bg-gray-300 transition-colors duration-200" data-value="6">6</button>
+            <button class="calculator-button bg-blue-300 text-blue-800 text-xl font-semibold p-4 rounded-xl shadow hover:bg-blue-400 transition-colors duration-200" data-value="-">-</button>
+            <button class="calculator-button bg-blue-300 text-blue-800 text-xl font-semibold p-4 rounded-xl shadow hover:bg-blue-400 transition-colors duration-200" data-value="%">%</button>
+
+            <button class="calculator-button bg-gray-200 text-gray-800 text-xl font-semibold p-4 rounded-xl shadow hover:bg-gray-300 transition-colors duration-200" data-value="1">1</button>
+            <button class="calculator-button bg-gray-200 text-gray-800 text-xl font-semibold p-4 rounded-xl shadow hover:bg-gray-300 transition-colors duration-200" data-value="2">2</button>
+            <button class="calculator-button bg-gray-200 text-gray-800 text-xl font-semibold p-4 rounded-xl shadow hover:bg-gray-300 transition-colors duration-200" data-value="3">3</button>
+            <button class="calculator-button bg-blue-300 text-blue-800 text-xl font-semibold p-4 rounded-xl shadow hover:bg-blue-400 transition-colors duration-200" data-value="+">+</button>
+            <button class="calculator-button bg-blue-500 text-white text-xl font-semibold p-4 rounded-xl shadow hover:bg-blue-600 transition-colors duration-200 row-span-2" data-value="=">=</button>
+
+            <button class="calculator-button bg-gray-200 text-gray-800 text-xl font-semibold p-4 rounded-xl shadow hover:bg-gray-300 transition-colors duration-200 col-span-2" data-value="0">0</button>
+            <button class="calculator-button bg-gray-200 text-gray-800 text-xl font-semibold p-4 rounded-xl shadow hover:bg-gray-300 transition-colors duration-200" data-value=".">.</button>
         </div>
     </div>
 
+    <!-- Script JavaScript para a lógica da calculadora -->
     <script src="script.js"></script>
 </body>
 </html>
