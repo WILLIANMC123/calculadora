@@ -1,50 +1,56 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Calculadora</title>
-  <link rel="stylesheet" href="css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
-<body>
-  <main class="calc" role="application" aria-label="Calculadora">
-    <section class="display">
-      <div id="history" class="history" aria-live="polite"></div>
-      <div id="result" class="result" aria-live="polite">0</div>
-    </section>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen font-sans">
 
-    <section class="keys" aria-label="Teclado da calculadora">
-      <button class="btn-danger" data-action="clear" aria-label="Limpar tudo (Esc)">AC</button>
-      <button class="btn-accent" data-action="delete" aria-label="Apagar (Backspace)">DEL</button>
-      <button class="btn-accent" data-action="percent" aria-label="Porcentagem">%</button>
-      <button class="btn-operator" data-value="/" aria-label="Dividir">÷</button>
+    <!-- Container Principal da Calculadora -->
+    <div class="calculator bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm mx-4">
+        
+        <!-- Tela de Exibição -->
+        <div id="display" class="bg-gray-200 text-gray-800 text-5xl font-mono text-right rounded-lg p-4 mb-6 break-words">0</div>
 
-      <button data-value="7">7</button>
-      <button data-value="8">8</button>
-      <button data-value="9">9</button>
-      <button class="btn-operator" data-value="*" aria-label="Multiplicar">×</button>
+        <!-- Grade de Botões -->
+        <div class="grid grid-cols-4 gap-4">
+            <!-- Linha 1 -->
+            <button class="btn operator-btn bg-orange-400 hover:bg-orange-500" data-action="clear">C</button>
+            <button class="btn operator-btn bg-gray-300 hover:bg-gray-400" data-action="negate">+/-</button>
+            <button class="btn operator-btn bg-gray-300 hover:bg-gray-400" data-action="percentage">%</button>
+            <button class="btn operator-btn bg-indigo-500 hover:bg-indigo-600" data-action="divide">÷</button>
 
-      <button data-value="4">4</button>
-      <button data-value="5">5</button>
-      <button data-value="6">6</button>
-      <button class="btn-operator" data-value="-" aria-label="Subtrair">−</button>
+            <!-- Linha 2 -->
+            <button class="btn number-btn">7</button>
+            <button class="btn number-btn">8</button>
+            <button class="btn number-btn">9</button>
+            <button class="btn operator-btn bg-indigo-500 hover:bg-indigo-600" data-action="multiply">×</button>
 
-      <button data-value="1">1</button>
-      <button data-value="2">2</button>
-      <button data-value="3">3</button>
-      <button class="btn-operator" data-value="+" aria-label="Somar">+</button>
+            <!-- Linha 3 -->
+            <button class="btn number-btn">4</button>
+            <button class="btn number-btn">5</button>
+            <button class="btn number-btn">6</button>
+            <button class="btn operator-btn bg-indigo-500 hover:bg-indigo-600" data-action="subtract">−</button>
 
-      <button data-action="sign" aria-label="Trocar sinal">±</button>
-      <button data-value="0">0</button>
-      <button data-value=".">.</button>
-      <button class="btn-equals" data-action="equals" aria-label="Igual (Enter)">=</button>
-    </section>
-  </main>
+            <!-- Linha 4 -->
+            <button class="btn number-btn">1</button>
+            <button class="btn number-btn">2</button>
+            <button class="btn number-btn">3</button>
+            <button class="btn operator-btn bg-indigo-500 hover:bg-indigo-600" data-action="add">+</button>
 
-  <footer>
-    Atalhos: <span class="kbd">Esc</span> limpa • <span class="kbd">Backspace</span> apaga • <span class="kbd">Enter</span> igual • Use o teclado numérico e operadores.
-  </footer>
+            <!-- Linha 5 -->
+            <button class="btn number-btn col-span-2">0</button>
+            <button class="btn" data-action="decimal">.</button>
+            <button class="btn equals-btn bg-green-500 hover:bg-green-600" data-action="calculate">=</button>
+        </div>
+    </div>
 
-  <script src="js/script.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="script.js"></script>
 </body>
 </html>
