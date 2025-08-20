@@ -1,33 +1,50 @@
-/* Este CSS é opcional, pois o Tailwind CSS é carregado via CDN no HTML. */
-/* Você pode adicionar estilos personalizados aqui se desejar. */
+/* Este arquivo CSS adiciona estilos personalizados que complementam o Tailwind CSS.
+  Ele é vinculado diretamente do HTML e não requer um processo de compilação.
+*/
 
-/* Estilo base para os botões */
+/* Estilo base para os botões, usando classes do Tailwind como referência */
 .btn {
-    @apply text-2xl font-semibold text-gray-800 bg-gray-200 rounded-lg h-20 flex items-center justify-center transition-all duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-opacity-50;
+    font-size: 1.5rem; /* 24px */
+    font-weight: 600;
+    color: #1f2937; /* text-gray-800 */
+    background-color: #e5e7eb; /* bg-gray-200 */
+    border-radius: 0.5rem; /* rounded-lg */
+    height: 5rem; /* h-20 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease-in-out;
+    -webkit-tap-highlight-color: transparent; /* Remove o flash azul em dispositivos móveis */
 }
 
-/* Estilo para botões de número e decimal */
-.number-btn, [data-action="decimal"] {
-    @apply bg-gray-200 hover:bg-gray-300 focus:ring-gray-400;
+.btn:hover {
+    transform: scale(1.05);
 }
 
-/* Estilo para botões de operadores */
+.btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.5); /* Anel de foco similar ao do Tailwind */
+}
+
+/* Efeito visual para quando um botão é ativado (via clique ou teclado) */
+.btn.is-depressed, .btn:active {
+    transform: scale(0.95);
+    filter: brightness(0.9);
+}
+
+/* Cores específicas para botões de operadores */
 .operator-btn {
-    @apply text-white focus:ring-white;
-}
-
-/* Estilo para o botão de igual */
-.equals-btn {
-    @apply text-white focus:ring-white;
+    color: white;
 }
 
 /* Estilo da tela de exibição */
 #display {
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-    min-height: 80px; /* Garante uma altura mínima */
+    min-height: 80px;
     display: flex;
     align-items: center;
     justify-content: flex-end;
+    padding: 1rem;
 }
 
 /* Estilo geral da calculadora */
