@@ -1,58 +1,8 @@
-/* Este arquivo CSS adiciona estilos personalizados que complementam o Tailwind CSS.
-  Ele é vinculado diretamente do HTML e não requer um processo de compilação.
-*/
-
-/* Estilo base para os botões, usando classes do Tailwind como referência */
-.btn {
-    font-size: 1.5rem; /* 24px */
-    font-weight: 600;
-    color: #1f2937; /* text-gray-800 */
-    background-color: #e5e7eb; /* bg-gray-200 */
-    border-radius: 0.5rem; /* rounded-lg */
-    height: 5rem; /* h-20 */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease-in-out;
-    -webkit-tap-highlight-color: transparent; /* Remove o flash azul em dispositivos móveis */
-}
-
-.btn:hover {
-    transform: scale(1.05);
-}
-
-.btn:focus {
-    outline: none;
-    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.5); /* Anel de foco similar ao do Tailwind */
-}
-
-/* Efeito visual para quando um botão é ativado (via clique ou teclado) */
-.btn.is-depressed, .btn:active {
-    transform: scale(0.95);
-    filter: brightness(0.9);
-}
-
-/* Cores específicas para botões de operadores */
-.operator-btn {
-    color: white;
-}
-
-/* Estilo da tela de exibição */
-#display {
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-    min-height: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding: 1rem;
-}
-
-/* Estilo geral da calculadora */
-.calculator {
-    border: 1px solid #e5e7eb; /* Borda sutil */
-}
-
-/* Adicionando a fonte Inter do Google Fonts */
+/* Definindo a fonte Inter globalmente para o corpo */
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: "Inter", sans-serif;
+}
+/* Estilo personalizado para botões quando ativos */
+.calculator-button:active {
+    transform: translateY(1px);
 }
