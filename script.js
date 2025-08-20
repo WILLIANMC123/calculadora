@@ -1,8 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Seleciona o container da calculadora e a tela de exibição
-    const calculator = document.querySelector('.calculator');
     const display = document.getElementById('display');
-    const keys = calculator.querySelector('.grid');
+    const keys = document.querySelector('.grid');
 
     // Objeto para armazenar o estado da calculadora
     const calculatorState = {
@@ -23,89 +21,38 @@ document.addEventListener('DOMContentLoaded', () => {
     updateDisplay();
 
     /**
-     * Lida com o clique nos botões.
-     * @param {Event} event - O evento de clique.
-     */
-    keys.addEventListener('click', (event) => {
-        const { target } = event;
-        const { textContent } = target;
-        const { action } = target.dataset;
-
-        // Ignora cliques que não são em botões
-        if (!target.matches('button')) {
-            return;
-        }
-
-        // Lida com números
-        if (!action) {
-            inputDigit(textContent);
-            updateDisplay();
-            return;
-        }
-
-        // Lida com o ponto decimal
-        if (action === 'decimal') {
-            inputDecimal(textContent);
-            updateDisplay();
-            return;
-        }
-
-        // Lida com operadores (+, -, *, /)
-        if (
-            action === 'add' ||
-            action === 'subtract' ||
-            action === 'multiply' ||
-            action === 'divide'
-        ) {
-            handleOperator(textContent);
-            updateDisplay();
-            return;
-        }
-        
-        // Lida com outras ações (limpar, calcular, etc.)
-        switch(action) {
-            case 'clear':
-                resetCalculator();
-                break;
-            case 'calculate':
-                const result = calculate(calculatorState.firstOperand, calculatorState.displayValue, calculatorState.operator);
-                calculatorState.displayValue = `${parseFloat(result.toFixed(7))}`;
-                calculatorState.operator = null;
-                break;
-            case 'negate':
-                 calculatorState.displayValue = (parseFloat(calculatorState.displayValue) * -1).toString();
-                 break;
-            case 'percentage':
-                 calculatorState.displayValue = (parseFloat(calculatorState.displayValue) / 100).toString();
-                 break;
-        }
-        updateDisplay();
-    });
-
-    /**
-     * Insere um dígito na tela.
+     * Lida com a entrada de dígitos.
      * @param {string} digit - O dígito a ser inserido.
      */
     function inputDigit(digit) {
         const { displayValue, waitingForSecondOperand } = calculatorState;
 
-        if (waitingForSecondOperand === true) {
+        // Se um erro for exibido, resete antes de inserir o novo dígito.
+        if (displayValue === 'Erro') {
+            resetCalculator();
+            calculatorState.displayValue = digit;
+            return;
+        }
+
+        if (waitingForSecondOperand) {
             calculatorState.displayValue = digit;
             calculatorState.waitingForSecondOperand = false;
         } else {
-            calculatorState.displayValue =
-                displayValue === '0' ? digit : displayValue + digit;
+            calculatorState.displayValue = displayValue === '0' ? digit : displayValue + digit;
         }
     }
 
     /**
      * Insere o ponto decimal.
-     * @param {string} dot - O caractere de ponto.
      */
-    function inputDecimal(dot) {
-        // Se o display já inclui um ponto, não faz nada
-        if (!calculatorState.displayValue.includes(dot)) {
-            calculatorState.displayValue += dot;
+    function inputDecimal() {
+        if (calculatorState.waitingForSecondOperand) {
+            calculatorState.displayValue = '0.';
+            calculatorState.waitingForSecondOperand = false;
+            return;
+        }
+        if (!calculatorState.displayValue.includes('.')) {
+            calculatorState.displayValue += '.';
         }
     }
 
@@ -113,19 +60,9 @@ document.addEventListener('DOMContentLoaded', () => {
      * Lida com a seleção de um operador.
      * @param {string} nextOperator - O operador selecionado.
      */
-    function handleOperator(nextOperatorSymbol) {
+    function handleOperator(nextOperator) {
         const { firstOperand, displayValue, operator } = calculatorState;
         const inputValue = parseFloat(displayValue);
-        
-        // Mapeia símbolos para funções
-        const operatorMap = {
-            '+': 'add',
-            '−': 'subtract',
-            '×': 'multiply',
-            '÷': 'divide'
-        };
-        const nextOperator = operatorMap[nextOperatorSymbol] || nextOperatorSymbol;
-
 
         if (operator && calculatorState.waitingForSecondOperand) {
             calculatorState.operator = nextOperator;
@@ -136,8 +73,13 @@ document.addEventListener('DOMContentLoaded', () => {
             calculatorState.firstOperand = inputValue;
         } else if (operator) {
             const result = calculate(firstOperand, inputValue, operator);
-            calculatorState.displayValue = `${parseFloat(result.toFixed(7))}`;
-            calculatorState.firstOperand = result;
+            
+            if (result === 'Erro') {
+                calculatorState.displayValue = 'Erro';
+            } else {
+                calculatorState.displayValue = `${parseFloat(result.toFixed(7))}`;
+                calculatorState.firstOperand = result;
+            }
         }
 
         calculatorState.waitingForSecondOperand = true;
@@ -149,27 +91,52 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {number} firstOperand - O primeiro número.
      * @param {number} secondOperand - O segundo número.
      * @param {string} operator - O operador.
-     * @returns {number} O resultado do cálculo.
+     * @returns {number|string} O resultado do cálculo ou 'Erro'.
      */
     function calculate(firstOperand, secondOperand, operator) {
-        const secondNum = parseFloat(secondOperand);
-        if (operator === 'add') {
-            return firstOperand + secondNum;
+        switch (operator) {
+            case 'add':
+                return firstOperand + secondOperand;
+            case 'subtract':
+                return firstOperand - secondOperand;
+            case 'multiply':
+                return firstOperand * secondOperand;
+            case 'divide':
+                if (secondOperand === 0) return 'Erro';
+                return firstOperand / secondOperand;
+            default:
+                return secondOperand;
         }
-        if (operator === 'subtract') {
-            return firstOperand - secondNum;
+    }
+    
+    /**
+     * Inverte o sinal do número no display.
+     */
+    function negateValue() {
+        if (calculatorState.displayValue !== '0' && calculatorState.displayValue !== 'Erro') {
+            calculatorState.displayValue = (parseFloat(calculatorState.displayValue) * -1).toString();
         }
-        if (operator === 'multiply') {
-            return firstOperand * secondNum;
+    }
+
+    /**
+     * Converte o número no display para porcentagem.
+     */
+    function convertToPercentage() {
+        if (calculatorState.displayValue !== 'Erro') {
+            calculatorState.displayValue = (parseFloat(calculatorState.displayValue) / 100).toString();
         }
-        if (operator === 'divide') {
-            // Lida com divisão por zero
-            if (secondNum === 0) {
-                return 'Erro';
-            }
-            return firstOperand / secondNum;
+    }
+    
+    /**
+     * Apaga o último dígito inserido.
+     */
+    function backspace() {
+        if (calculatorState.displayValue === 'Erro') return;
+        if (calculatorState.displayValue.length > 1) {
+            calculatorState.displayValue = calculatorState.displayValue.slice(0, -1);
+        } else {
+            calculatorState.displayValue = '0';
         }
-        return secondNum; // Retorna o segundo operando se não houver operador
     }
 
     /**
@@ -181,4 +148,70 @@ document.addEventListener('DOMContentLoaded', () => {
         calculatorState.waitingForSecondOperand = false;
         calculatorState.operator = null;
     }
+
+    // Mapeia ações a funções
+    const actions = {
+        'decimal': inputDecimal,
+        'clear': resetCalculator,
+        'negate': negateValue,
+        'percentage': convertToPercentage,
+        'backspace': backspace,
+        'calculate': () => {
+            const { firstOperand, displayValue, operator } = calculatorState;
+            if (firstOperand == null || operator == null || calculatorState.waitingForSecondOperand) return;
+            const result = calculate(firstOperand, parseFloat(displayValue), operator);
+            if (result === 'Erro') {
+                calculatorState.displayValue = 'Erro';
+            } else {
+                calculatorState.displayValue = `${parseFloat(result.toFixed(7))}`;
+            }
+            calculatorState.operator = null;
+            calculatorState.firstOperand = null; // Reset for new calculations
+            calculatorState.waitingForSecondOperand = true;
+        }
+    };
+
+    // Lida com cliques nos botões
+    keys.addEventListener('click', (event) => {
+        const { target } = event;
+        if (!target.matches('button')) return;
+
+        const { action } = target.dataset;
+        const keyContent = target.textContent;
+        
+        if (!action) { // É um número
+            inputDigit(keyContent);
+        } else if (['add', 'subtract', 'multiply', 'divide'].includes(action)) {
+            handleOperator(action);
+        } else if (actions[action]) { // Outras ações
+            actions[action]();
+        }
+
+        updateDisplay();
+    });
+    
+    // Lida com entradas do teclado
+    window.addEventListener('keydown', (event) => {
+        const keyMap = {
+            '0': '0', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6', '7': '7', '8': '8', '9': '9',
+            '.': 'decimal', ',': 'decimal',
+            '+': 'add', '-': 'subtract', '*': 'multiply', '/': 'divide',
+            '%': 'percentage',
+            'Enter': 'calculate', '=': 'calculate',
+            'Escape': 'clear', 'c': 'clear', 'C': 'clear',
+            'Backspace': 'backspace'
+        };
+        
+        const action = keyMap[event.key];
+        if (action) {
+            event.preventDefault(); // Impede ações padrão do navegador
+            const button = document.querySelector(`[data-action="${action}"]`) || Array.from(document.querySelectorAll('.btn')).find(btn => btn.textContent === event.key);
+            if (button) {
+                button.click();
+                // Adiciona um efeito visual para o pressionamento da tecla
+                button.classList.add('is-depressed');
+                setTimeout(() => button.classList.remove('is-depressed'), 150);
+            }
+        }
+    });
 });
